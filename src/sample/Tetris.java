@@ -112,6 +112,7 @@ public class Tetris extends Application {
                     @Override
                     public void run() {
                         gameRunning = !Controller.figureStuckOnTop(figure);
+
                         if(!gameRunning && blockOnTop == 0){
                             blockOnTop = 1;
                             System.out.println("Block on top: " + blockOnTop);
