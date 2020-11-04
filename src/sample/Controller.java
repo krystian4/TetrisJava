@@ -149,6 +149,12 @@ public class Controller {
         return new Figure(a, b, c, d, name);
     }
 
+    public static boolean figureStuckOnTop(Figure figure){
+        if ((figure.a.getY() == 0 || figure.b.getY() == 0 || figure.c.getY() == 0 || figure.d.getY() == 0)
+                && (cannotMoveA(figure) || cannotMoveB(figure) || cannotMoveC(figure) || cannotMoveD(figure))) {
+            return true;
+        } else return false;
+    }
     public static void MoveFigureDown(Figure figure) {
         //if figure should not move
         if(figure.a.getY() == HEIGHT - BLOCKSIZE || figure.b.getY() == HEIGHT - BLOCKSIZE ||

@@ -105,22 +105,36 @@ public class Tetris extends Application {
         newGame();
         //TIMER
         ScheduledExecutorService threadPoolExecutor = Executors.newScheduledThreadPool(1);
+        TimerTask topCheckTask = new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        gameRunning = !Controller.figureStuckOnTop(figure);
+                        if(!gameRunning && blockOnTop == 0){
+                            blockOnTop = 1;
+                            System.out.println("Block on top: " + blockOnTop);
+                        }
+                    }
+                });
+            }
+        };
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        if ((figure.a.getY() == 0 || figure.b.getY() == 0 ||
-                                figure.c.getY() == 0 || figure.d.getY() == 0) && (gameRunning && !gamePaused)) {
-                            blockOnTop++;
-                        } else blockOnTop = 0;
-
                         //GAME OVER - block do not move down
-                        if (blockOnTop == 2) {
+                        if (!gameRunning && blockOnTop == 1) {
                             displayGameOver(gameOver);
-                            gameRunning = false;
+                            //gameRunning = false;
+                            blockOnTop++;
+                            System.out.println("Block on top: " + blockOnTop);
                             displayRestartButton();
+                            System.out.println("app closed");
+
                         }
                         //Game is running
                         else if(gameRunning && !gamePaused){
@@ -128,16 +142,18 @@ public class Tetris extends Application {
                             scoreText.setText("SCORE: " + score);
                             level.setText("Lines: " + numOfLines);
                         }
-                        if(!gameRunning && blockOnTop >= 2){
+                        /*if(!gameRunning && blockOnTop >= 2){
                             System.out.println("app closed");
                             //fall.cancel();
                             //fall.purge();
-                        }
+                        }*/
                     }
                 });
             }
         };
         threadPoolExecutor.scheduleAtFixedRate(timerTask, 500, 300, TimeUnit.MILLISECONDS);
+        threadPoolExecutor.scheduleAtFixedRate(topCheckTask, 500, 10, TimeUnit.MILLISECONDS);
+
     }
 
     private void displayRestartButton() {
@@ -157,7 +173,7 @@ public class Tetris extends Application {
         scene = new Scene(group, WIDTH+150, HEIGHT);
         scene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
         mainStage.setScene(scene);
-        System.out.println("Restarting game");
+        System.out.println("New game started");
         blockOnTop=0;
         score = 0;
         numOfLines = 0;
