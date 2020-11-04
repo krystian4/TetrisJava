@@ -15,6 +15,9 @@ import javafx.stage.Stage;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Tetris extends Application {
     //Tetris settings
@@ -41,7 +44,7 @@ public class Tetris extends Application {
     private static int blockOnTop = 0;
     private Stage mainStage;
     //menu
-    private Pane menuPane = new Pane();
+    private final Pane menuPane = new Pane();
     Scene menuScene = new Scene(menuPane, 300, 600);
 
     public static void main() {
@@ -101,7 +104,7 @@ public class Tetris extends Application {
     private void runGame() {
         newGame();
         //TIMER
-        Timer fall = new Timer();
+        ScheduledExecutorService threadPoolExecutor = Executors.newScheduledThreadPool(1);
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -134,7 +137,7 @@ public class Tetris extends Application {
                 });
             }
         };
-        fall.schedule(timerTask, 500, 100);
+        threadPoolExecutor.scheduleAtFixedRate(timerTask, 500, 300, TimeUnit.MILLISECONDS);
     }
 
     private void displayRestartButton() {
