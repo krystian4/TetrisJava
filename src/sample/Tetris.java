@@ -13,10 +13,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.Arrays;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Tetris extends Application {
@@ -31,7 +31,7 @@ public class Tetris extends Application {
     private final Text level = new Text("");
     private final Text gameOver = new Text("");
     private static final Text pauseText = new Text("");
-
+    //GAME VARIABLES
     //board array contains information if block is busy(1) empty(0)
     public static int [][] BOARD = new int[WIDTH/ BLOCKSIZE][HEIGHT/ BLOCKSIZE];
     public static Pane group;
@@ -42,10 +42,15 @@ public class Tetris extends Application {
     public static boolean gamePaused = false;
     public static int numOfLines = 0;
     private static int blockOnTop = 0;
-    private Stage mainStage;
+    private int gameSpeed = 300;
+    private int checkpointScoreforTime;
     //menu
+    private Stage mainStage;
     private final Pane menuPane = new Pane();
     Scene menuScene = new Scene(menuPane, 300, 600);
+    private ScheduledFuture<?> futureTask;
+    private ScheduledExecutorService threadPoolExecutor;
+    private TimerTask timerTask;
 
     public static void main() {
     }
@@ -104,57 +109,63 @@ public class Tetris extends Application {
     private void runGame() {
         newGame();
         //TIMER
-        ScheduledExecutorService threadPoolExecutor = Executors.newScheduledThreadPool(1);
+        threadPoolExecutor = Executors.newScheduledThreadPool(3);
         TimerTask topCheckTask = new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        gameRunning = !Controller.figureStuckOnTop(figure);
-
-                        if(!gameRunning && blockOnTop == 0){
-                            blockOnTop = 1;
-                            System.out.println("Block on top: " + blockOnTop);
-                        }
+                Platform.runLater(() -> {
+                    gameRunning = !Controller.figureStuckOnTop(figure);
+                    if(!gameRunning && blockOnTop == 0){
+                        blockOnTop = 1;
+                        System.out.println("Block on top: " + blockOnTop);
                     }
                 });
             }
         };
-        TimerTask timerTask = new TimerTask() {
+        timerTask = new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        //GAME OVER - block do not move down
-                        if (!gameRunning && blockOnTop == 1) {
-                            displayGameOver(gameOver);
-                            //gameRunning = false;
-                            blockOnTop++;
-                            System.out.println("Block on top: " + blockOnTop);
-                            displayRestartButton();
-                            System.out.println("app closed");
+                Platform.runLater(() -> {
+                    //GAME OVER - block do not move down
+                    if (!gameRunning && blockOnTop == 1) {
+                        displayGameOver(gameOver);
+                        blockOnTop++;
+                        System.out.println("Block on top: " + blockOnTop);
+                        displayRestartButton();
+                        System.out.println("app closed");
+                        gameSpeed = 300;
+                        changeReadInterval(gameSpeed);
+                    }
+                    //Game is running
+                    else if(gameRunning && !gamePaused){
+                        Controller.MoveFigureDown(figure);
+                        scoreText.setText("SCORE: " + score);
+                        level.setText("Lines: " + numOfLines);
+                    }
 
-                        }
-                        //Game is running
-                        else if(gameRunning && !gamePaused){
-                            Controller.MoveFigureDown(figure);
-                            scoreText.setText("SCORE: " + score);
-                            level.setText("Lines: " + numOfLines);
-                        }
-                        /*if(!gameRunning && blockOnTop >= 2){
-                            System.out.println("app closed");
-                            //fall.cancel();
-                            //fall.purge();
-                        }*/
+                    if(score >= checkpointScoreforTime){
+                        gameSpeed -= 100;
+                        checkpointScoreforTime += 50;
+                        changeReadInterval(gameSpeed);
                     }
                 });
             }
         };
-        threadPoolExecutor.scheduleAtFixedRate(timerTask, 500, 300, TimeUnit.MILLISECONDS);
+        futureTask = threadPoolExecutor.scheduleAtFixedRate(timerTask, 500, gameSpeed, TimeUnit.MILLISECONDS);
         threadPoolExecutor.scheduleAtFixedRate(topCheckTask, 500, 10, TimeUnit.MILLISECONDS);
+    }
 
+    public void changeReadInterval(int time)
+    {
+        if(time > 0)
+        {
+            if (futureTask != null)
+            {
+                futureTask.cancel(true);
+            }
+            System.out.println("Setting new speed: " + time);
+            futureTask = threadPoolExecutor.scheduleAtFixedRate(timerTask, 0, time, TimeUnit.MILLISECONDS);
+        }
     }
 
     private void displayRestartButton() {
@@ -175,6 +186,7 @@ public class Tetris extends Application {
         scene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
         mainStage.setScene(scene);
         System.out.println("New game started");
+        checkpointScoreforTime = 50;
         blockOnTop=0;
         score = 0;
         numOfLines = 0;
@@ -188,7 +200,7 @@ public class Tetris extends Application {
         displayScore(scoreText);
         displayLines(level);
 
-        setUpPauseText(pauseText);
+        setUpPauseText();
         group.setBackground(Background.EMPTY);
         group.getChildren().addAll(line, scoreText, level, pauseText);
         setUpFigures();
@@ -213,22 +225,7 @@ public class Tetris extends Application {
         Tetris.group.getChildren().addAll(prev.a, prev.b, prev.c, prev.d);
     }
 
-/*    private void cleanBoard() {
-        ArrayList<Node> rects = new ArrayList<Node>();
-        for(Node node : group.getChildren()){
-            if(node instanceof Rectangle){
-                Rectangle a = (Rectangle) node;
-                rects.add(a);
-            }
-        }
-        for(Node r : rects){
-            group.getChildren().remove(r);
-        }
-        rects.clear();
-        System.out.println("Board cleaned");
-    }*/
-
-    private void setUpPauseText(Text pauseText) {
+    private void setUpPauseText() {
         pauseText.setId("textOnScreen");
         pauseText.setY(300);
         pauseText.setX(20);
