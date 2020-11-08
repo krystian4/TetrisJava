@@ -142,11 +142,9 @@ public class Tetris extends Application {
                         scoreText.setText("SCORE: " + score);
                         level.setText("Lines: " + numOfLines);
                     }
-
-                    if(score >= checkpointScoreforTime){
-                        gameSpeed -= 100;
-                        checkpointScoreforTime += 50;
-                        changeReadInterval(gameSpeed);
+                    //change falling speed
+                    if(gameRunning && (score >= checkpointScoreforTime)){
+                        changeGameSpeed();
                     }
                 });
             }
@@ -155,15 +153,19 @@ public class Tetris extends Application {
         threadPoolExecutor.scheduleAtFixedRate(topCheckTask, 500, 10, TimeUnit.MILLISECONDS);
     }
 
-    public void changeReadInterval(int time)
-    {
-        if(time > 0)
-        {
-            if (futureTask != null)
-            {
+    private void changeGameSpeed() {
+        if(gameSpeed > 50){
+            gameSpeed -= 50;
+            checkpointScoreforTime += 500;
+            changeReadInterval(gameSpeed);
+        }
+    }
+
+    public void changeReadInterval(int time) {
+        if(time > 0) {
+            if (futureTask != null) {
                 futureTask.cancel(true);
             }
-            System.out.println("Setting new speed: " + time);
             futureTask = threadPoolExecutor.scheduleAtFixedRate(timerTask, 0, time, TimeUnit.MILLISECONDS);
         }
     }
@@ -253,19 +255,13 @@ public class Tetris extends Application {
         group.getChildren().add(gameOver);
     }
 
-    /*public static boolean gamePaused(){
-        return !gameRunning;
-    }*/
-
     public static void pauseGame(){
         if(!gamePaused){
-            //gameRunning = false;
             gamePaused = true;
             pauseText.setText("P A U S E");
             pauseText.toFront();
         }
         else{
-            //gameRunning = true;
             gamePaused = false;
             pauseText.setText("");
         }
