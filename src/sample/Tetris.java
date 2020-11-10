@@ -1,6 +1,5 @@
 package sample;
 
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -71,45 +70,11 @@ public class Tetris extends Application {
         mainStage.show();
     }
 
-    private void addControlsButtonToPane() {
-        Button controlsButton = new Button("CONTROLS");
-        menuScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
-        controlsButton.setPrefWidth(150);
-        controlsButton.setLayoutX(75);
-        controlsButton.setLayoutY(150);
-        menuPane.getChildren().add(controlsButton);
-        group = new Pane();
-        group.setId("controls");
-        addBackButtonToPane(group);
-        Scene controlsScene = new Scene(group, 300, 600);
-        controlsScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
-        controlsButton.setOnAction(event -> mainStage.setScene(controlsScene));
-    }
-
-    private void addBackButtonToPane(Pane pane) {
-        Button backButton = new Button("B A C K");
-        backButton.setPrefWidth(150);
-        backButton.setLayoutX(75);
-        backButton.setLayoutY(450);
-        backButton.setOnAction(event -> mainStage.setScene(menuScene));
-        pane.getChildren().add(backButton);
-    }
-
-
-    private void addStartButtonToPane() {
-        Button startButton = new Button("S T A R T");
-        startButton.setPrefWidth(150);
-        startButton.setLayoutX(75);
-        startButton.setLayoutY(50);
-        menuPane.setBackground(Background.EMPTY);
-        menuPane.getChildren().add(startButton);
-        startButton.setOnAction(event -> runGame());
-    }
     //zwracanie sceny i uruchamianie nowej
     private void runGame() {
         newGame();
         //TIMER
-        threadPoolExecutor = Executors.newScheduledThreadPool(3);
+        threadPoolExecutor = Executors.newScheduledThreadPool(2);
         TimerTask topCheckTask = new TimerTask() {
             @Override
             public void run() {
@@ -226,7 +191,40 @@ public class Tetris extends Application {
         Figure prev = Tetris.nextFigure;
         Tetris.group.getChildren().addAll(prev.a, prev.b, prev.c, prev.d);
     }
+    private void addControlsButtonToPane() {
+        Button controlsButton = new Button("CONTROLS");
+        menuScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
+        controlsButton.setPrefWidth(150);
+        controlsButton.setLayoutX(75);
+        controlsButton.setLayoutY(150);
+        menuPane.getChildren().add(controlsButton);
+        group = new Pane();
+        group.setId("controls");
+        addBackButtonToPane(group);
+        Scene controlsScene = new Scene(group, 300, 600);
+        controlsScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
+        controlsButton.setOnAction(event -> mainStage.setScene(controlsScene));
+    }
 
+    private void addBackButtonToPane(Pane pane) {
+        Button backButton = new Button("B A C K");
+        backButton.setPrefWidth(150);
+        backButton.setLayoutX(75);
+        backButton.setLayoutY(450);
+        backButton.setOnAction(event -> mainStage.setScene(menuScene));
+        pane.getChildren().add(backButton);
+    }
+
+
+    private void addStartButtonToPane() {
+        Button startButton = new Button("S T A R T");
+        startButton.setPrefWidth(150);
+        startButton.setLayoutX(75);
+        startButton.setLayoutY(50);
+        menuPane.setBackground(Background.EMPTY);
+        menuPane.getChildren().add(startButton);
+        startButton.setOnAction(event -> runGame());
+    }
     private void setUpPauseText() {
         pauseText.setId("textOnScreen");
         pauseText.setY(300);
