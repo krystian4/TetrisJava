@@ -144,10 +144,8 @@ public class Controller {
     }
 
     public static boolean figureStuckOnTop(Figure figure){
-        if ((figure.a.getY() == 0 || figure.b.getY() == 0 || figure.c.getY() == 0 || figure.d.getY() == 0)
-                && (cannotMoveA(figure) || cannotMoveB(figure) || cannotMoveC(figure) || cannotMoveD(figure))) {
-            return true;
-        } else return false;
+        return (figure.a.getY() == 0 || figure.b.getY() == 0 || figure.c.getY() == 0 || figure.d.getY() == 0)
+                && (cannotMoveA(figure) || cannotMoveB(figure) || cannotMoveC(figure) || cannotMoveD(figure));
     }
 
     public static void MoveFigureDown(Figure figure) {
@@ -536,14 +534,14 @@ public class Controller {
     }
 
     private static void RemoveRows(Pane pane) {
-        ArrayList<Node> rects = new ArrayList<Node>();
-        ArrayList<Integer> lines = new ArrayList<Integer>();
-        ArrayList<Node> newRects = new ArrayList<Node>();
+        ArrayList<Node> rects = new ArrayList<>();
+        ArrayList<Integer> lines = new ArrayList<>();
+        ArrayList<Node> newRects = new ArrayList<>();
         int full = 0;
         //check each x axis if there is a full line
         for (int i = 0; i < BOARD[0].length; i++) {
-            for (int j = 0; j < BOARD.length; j++) {
-                if (BOARD[j][i] == 1) full++;
+            for (int[] ints : BOARD) {
+                if (ints[i] == 1) full++;
             }
             if (full == BOARD.length) {
                 lines.add(i);
@@ -569,8 +567,11 @@ public class Controller {
                         pane.getChildren().remove(node);
                     }
                     //add rectangle for moving down purposes if not inside full line
-                    else if(a.getX() > WIDTH){}
-                    else newRects.add(node);
+                    else {
+                        if (!(a.getX() > WIDTH)) {
+                            newRects.add(node);
+                        }
+                    }
                 }
                 //move down not deleted rectangles
                 for(Node node : newRects) {
@@ -592,7 +593,7 @@ public class Controller {
                     Rectangle a = (Rectangle) node;
                     try {
                         BOARD[(int) a.getX() / BLOCKSIZE][(int) a.getY() / BLOCKSIZE] = 1;
-                    } catch (ArrayIndexOutOfBoundsException e){
+                    } catch (ArrayIndexOutOfBoundsException ignored) {
                     }
                 }
                 rects.clear();

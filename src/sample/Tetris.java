@@ -1,6 +1,5 @@
 package sample;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,7 +14,7 @@ import java.util.Arrays;
 import java.util.TimerTask;
 import java.util.concurrent.*;
 
-public class Tetris extends Application {
+public class Tetris{
     //Tetris settings
     public static final int MOVE = 25;
     public static final int BLOCKSIZE = 25;
@@ -40,37 +39,19 @@ public class Tetris extends Application {
     private static int blockOnTop = 0;
     private int gameSpeed = 1000;
     private int checkpointScoreforTime;
-    //menu
-    private Stage mainStage;
-    private final Pane menuPane = new Pane();
-    Scene menuScene = new Scene(menuPane, 300, 600);
+    private final Stage mainStage;
     //multitasking
     private ScheduledFuture<?> futureTask;
     private ScheduledExecutorService threadPoolExecutor;
     private TimerTask timerTask;
     private final Semaphore mutex = new Semaphore(1);
 
-    public static void main() {
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws Exception {
+    public Tetris(Stage primaryStage) {
         mainStage = primaryStage;
-        //if window is closed
-        primaryStage.setOnCloseRequest(event -> System.exit(0));
-        //menu scene
-        addStartButtonToPane();
-        addControlsButtonToPane();
-        menuScene.setFill(Color.rgb(8,15,48));
-        menuScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
-        mainStage.setTitle("M E N U");
-        mainStage.setScene(menuScene);
-        mainStage.setResizable(false);
-        mainStage.show();
     }
 
     //zwracanie sceny i uruchamianie nowej
-    private void runGame() throws InterruptedException {
+    void runGame() throws InterruptedException {
         try {
             System.out.println(mutex.toString());
             mutex.acquire();
@@ -126,9 +107,10 @@ public class Tetris extends Application {
     }
 
     private void changeGameSpeed() {
-        if(gameSpeed > 50){
-            gameSpeed -= 50;
-            checkpointScoreforTime += 500;
+        int fasterBy = 50;
+        if(gameSpeed - fasterBy > 50){
+            gameSpeed -= fasterBy;
+            checkpointScoreforTime += 100;
             changeReadInterval(gameSpeed);
         }
     }
@@ -153,6 +135,7 @@ public class Tetris extends Application {
             newGame();
         });
     }
+
     private void displayMenuButton() {
         Button menuButton = new Button("M E N U");
         menuButton.setPrefWidth(125);
@@ -164,7 +147,7 @@ public class Tetris extends Application {
             if(gamePaused){
                 pauseGame();
             }
-            mainStage.setScene(menuScene);
+            mainStage.setScene(UserMenu.menuScene);
         });
     }
 
@@ -174,7 +157,7 @@ public class Tetris extends Application {
         scene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
         mainStage.setScene(scene);
         System.out.println("New game started");
-        checkpointScoreforTime = 50;
+        checkpointScoreforTime = 100;
         blockOnTop=0;
         score = 0;
         numOfLines = 0;
@@ -212,51 +195,13 @@ public class Tetris extends Application {
         Figure prev = Tetris.nextFigure;
         Tetris.group.getChildren().addAll(prev.a, prev.b, prev.c, prev.d);
     }
-    private void addControlsButtonToPane() {
-        Button controlsButton = new Button("CONTROLS");
-        menuScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
-        controlsButton.setPrefWidth(150);
-        controlsButton.setLayoutX(75);
-        controlsButton.setLayoutY(150);
-        menuPane.getChildren().add(controlsButton);
-        group = new Pane();
-        group.setId("controls");
-        addBackButtonToPane(group);
-        Scene controlsScene = new Scene(group, 300, 600);
-        controlsScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
-        controlsButton.setOnAction(event -> mainStage.setScene(controlsScene));
-    }
 
-    private void addBackButtonToPane(Pane pane) {
-        Button backButton = new Button("B A C K");
-        backButton.setPrefWidth(150);
-        backButton.setLayoutX(75);
-        backButton.setLayoutY(450);
-        backButton.setOnAction(event -> mainStage.setScene(menuScene));
-        pane.getChildren().add(backButton);
-    }
-
-
-    private void addStartButtonToPane() {
-        Button startButton = new Button("S T A R T");
-        startButton.setPrefWidth(150);
-        startButton.setLayoutX(75);
-        startButton.setLayoutY(50);
-        menuPane.setBackground(Background.EMPTY);
-        menuPane.getChildren().add(startButton);
-        startButton.setOnAction(event -> {
-            try {
-                runGame();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
     private void setUpPauseText() {
         pauseText.setId("textOnScreen");
         pauseText.setY(300);
         pauseText.setX(20);
     }
+
     private void displayLines(Text level) {
         level.setText("Lines:");
         level.setY(160);
@@ -264,6 +209,7 @@ public class Tetris extends Application {
         level.setFont(Font.font("Comic Sans MS", 20));
         level.setFill(Color.LIME);
     }
+
     private void displayScore(Text scoreText) {
         scoreText.setText("SCORE: ");
         scoreText.setFont(Font.font("Comic Sans MS", 20));
@@ -271,6 +217,7 @@ public class Tetris extends Application {
         scoreText.setY(125);
         scoreText.setX(WIDTH + 5);
     }
+
     private void displayGameOver(Text gameOver) {
         gameOver.setText("G A M E  O V E R ");
         gameOver.setId("textOnScreen");
