@@ -555,7 +555,9 @@ public class Controller {
                 for(Node node : pane.getChildren()){
                     if(node instanceof Rectangle) rects.add(node);
                 }
-                Tetris.score += 50;
+                synchronized ((Integer)Tetris.score){
+                    Tetris.score += 50;
+                }
                 Tetris.numOfLines++;
                 //delete block on row
                 for(Node node : rects) {

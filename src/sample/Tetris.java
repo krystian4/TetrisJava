@@ -13,10 +13,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.Arrays;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Tetris extends Application {
     //Tetris settings
@@ -41,15 +38,17 @@ public class Tetris extends Application {
     public static boolean gamePaused = false;
     public static int numOfLines = 0;
     private static int blockOnTop = 0;
-    private int gameSpeed = 300;
+    private int gameSpeed = 1000;
     private int checkpointScoreforTime;
     //menu
     private Stage mainStage;
     private final Pane menuPane = new Pane();
     Scene menuScene = new Scene(menuPane, 300, 600);
+    //multitasking
     private ScheduledFuture<?> futureTask;
     private ScheduledExecutorService threadPoolExecutor;
     private TimerTask timerTask;
+    private final Semaphore mutex = new Semaphore(1);
 
     public static void main() {
     }
@@ -71,8 +70,16 @@ public class Tetris extends Application {
     }
 
     //zwracanie sceny i uruchamianie nowej
-    private void runGame() {
-        newGame();
+    private void runGame() throws InterruptedException {
+        try {
+            System.out.println(mutex.toString());
+            mutex.acquire();
+            System.out.println(mutex.toString());
+            newGame();
+        } finally {
+            mutex.release();
+        }
+
         //TIMER
         threadPoolExecutor = Executors.newScheduledThreadPool(2);
         TimerTask topCheckTask = new TimerTask() {
@@ -98,7 +105,7 @@ public class Tetris extends Application {
                         System.out.println("Block on top: " + blockOnTop);
                         displayRestartButton();
                         System.out.println("app closed");
-                        gameSpeed = 300;
+                        gameSpeed = 1000;
                         changeReadInterval(gameSpeed);
                     }
                     //Game is running
@@ -146,6 +153,17 @@ public class Tetris extends Application {
             newGame();
         });
     }
+    private void displayMenuButton() {
+        Button menuButton = new Button("M E N U");
+        menuButton.setPrefWidth(125);
+        menuButton.setLayoutX(WIDTH+10);
+        menuButton.setLayoutY(HEIGHT - 100);
+        group.getChildren().add(menuButton);
+        menuButton.setOnAction(event -> {
+            threadPoolExecutor.shutdown();
+            mainStage.setScene(menuScene);
+        });
+    }
 
     private void newGame() {
         group = new Pane();
@@ -166,7 +184,7 @@ public class Tetris extends Application {
 
         displayScore(scoreText);
         displayLines(level);
-
+        displayMenuButton();
         setUpPauseText();
         group.setBackground(Background.EMPTY);
         group.getChildren().addAll(line, scoreText, level, pauseText);
@@ -223,7 +241,13 @@ public class Tetris extends Application {
         startButton.setLayoutY(50);
         menuPane.setBackground(Background.EMPTY);
         menuPane.getChildren().add(startButton);
-        startButton.setOnAction(event -> runGame());
+        startButton.setOnAction(event -> {
+            try {
+                runGame();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
     private void setUpPauseText() {
         pauseText.setId("textOnScreen");
