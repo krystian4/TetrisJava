@@ -161,6 +161,9 @@ public class Tetris extends Application {
         group.getChildren().add(menuButton);
         menuButton.setOnAction(event -> {
             threadPoolExecutor.shutdown();
+            if(gamePaused){
+                pauseGame();
+            }
             mainStage.setScene(menuScene);
         });
     }

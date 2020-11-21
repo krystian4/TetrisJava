@@ -149,6 +149,7 @@ public class Controller {
             return true;
         } else return false;
     }
+
     public static void MoveFigureDown(Figure figure) {
         //if figure should not move
         if(figure.a.getY() == HEIGHT - BLOCKSIZE || figure.b.getY() == HEIGHT - BLOCKSIZE ||
