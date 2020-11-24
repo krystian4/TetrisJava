@@ -1,11 +1,14 @@
 package sample;
 
-import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class UserMenu{
@@ -13,7 +16,7 @@ public class UserMenu{
     private static final Pane menuPane = new Pane();
     public static Scene menuScene = new Scene(menuPane, 300, 600);
 
-    public UserMenu(Stage primaryStage){
+    public UserMenu(Stage primaryStage, String login){
 
         //menu scene
         mainStage = primaryStage;
@@ -24,8 +27,22 @@ public class UserMenu{
         mainStage.setTitle("M E N U");
         mainStage.setScene(menuScene);
         mainStage.setResizable(false);
-        mainStage.show();
 
+        Text sceneTitle = new Text("T E T R I S");
+        sceneTitle.setId("textOnScreen");
+
+        Text loginText = new Text(login);
+        loginText.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, 32));
+        loginText.setStyle("-fx-fill: white;");
+
+        VBox vbox = new VBox(10, loginText);
+        vbox.setMinWidth(300);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(120, 0, 0 , 0));
+
+        sceneTitle.setY(100);
+        menuPane.getChildren().addAll(sceneTitle, vbox);
+        mainStage.show();
     }
 
     private void addControlsButtonToPane() {
@@ -33,7 +50,7 @@ public class UserMenu{
         menuScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
         controlsButton.setPrefWidth(150);
         controlsButton.setLayoutX(75);
-        controlsButton.setLayoutY(150);
+        controlsButton.setLayoutY(450);
         menuPane.getChildren().add(controlsButton);
         Tetris.group = new Pane();
         Tetris.group.setId("controls");
@@ -57,7 +74,7 @@ public class UserMenu{
         Button startButton = new Button("S T A R T");
         startButton.setPrefWidth(150);
         startButton.setLayoutX(75);
-        startButton.setLayoutY(50);
+        startButton.setLayoutY(350);
         menuPane.setBackground(Background.EMPTY);
         menuPane.getChildren().add(startButton);
         startButton.setOnAction(event -> {

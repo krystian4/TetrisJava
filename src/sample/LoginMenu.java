@@ -80,7 +80,7 @@ public class LoginMenu extends Application {
 
         loginButton.setOnAction(event -> {
             if(!loginTextField.getText().isEmpty()){
-                new UserMenu(mainStage);
+                new UserMenu(mainStage, loginTextField.getText().toString());
             }
         });
 
