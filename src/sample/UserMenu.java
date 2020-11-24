@@ -8,16 +8,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class UserMenu extends Application {
+public class UserMenu{
     private Stage mainStage;
     private static final Pane menuPane = new Pane();
     public static Scene menuScene = new Scene(menuPane, 300, 600);
 
-    public static void main() {
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws Exception {
+    public UserMenu(Stage primaryStage){
         //if window is closed
         primaryStage.setOnCloseRequest(event -> System.exit(0));
         //menu scene

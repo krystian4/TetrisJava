@@ -53,9 +53,9 @@ public class Tetris{
     //zwracanie sceny i uruchamianie nowej
     void runGame() throws InterruptedException {
         try {
-            System.out.println(mutex.toString());
+            //System.out.println(mutex.toString());
             mutex.acquire();
-            System.out.println(mutex.toString());
+            //System.out.println(mutex.toString());
             newGame();
         } finally {
             mutex.release();
@@ -85,7 +85,6 @@ public class Tetris{
                         blockOnTop++;
                         System.out.println("Block on top: " + blockOnTop);
                         displayRestartButton();
-                        System.out.println("app closed");
                         gameSpeed = 1000;
                         changeReadInterval(gameSpeed);
                     }
@@ -144,6 +143,7 @@ public class Tetris{
         group.getChildren().add(menuButton);
         menuButton.setOnAction(event -> {
             threadPoolExecutor.shutdown();
+            gameRunning = false;
             if(gamePaused){
                 pauseGame();
             }
