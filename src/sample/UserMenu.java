@@ -14,8 +14,7 @@ public class UserMenu{
     public static Scene menuScene = new Scene(menuPane, 300, 600);
 
     public UserMenu(Stage primaryStage){
-        //if window is closed
-        primaryStage.setOnCloseRequest(event -> System.exit(0));
+
         //menu scene
         mainStage = primaryStage;
         addStartButtonToPane();
