@@ -3,12 +3,14 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Tetris</output-path>
     <properties id="javafx-properties">
       <options>
-        <option name="appClass" value="sample.Tetris" />
+        <option name="appClass" value="sample.LoginMenu" />
         <option name="description" value="" />
+        <option name="height" value="300" />
         <option name="htmlPlaceholderId" value="" />
         <option name="title" value="" />
         <option name="vendor" value="" />
         <option name="version" value="" />
+        <option name="width" value="300" />
       </options>
     </properties>
     <root id="root">
