@@ -17,14 +17,15 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class LoginMenu extends Application {
+
+    private Socket socket;
+    private DataOutputStream send;
+    private DataInputStream receive;
 
     private Stage mainStage;
     private static final GridPane loginPane = new GridPane();
@@ -100,26 +101,20 @@ public class LoginMenu extends Application {
     }
 
     private void connectToServer() {
-        try(
-                Socket kkSocket = new Socket("127.0.0.1" , 4444);
-                PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(kkSocket.getInputStream()));
-        ){
-            BufferedReader stdIn =
-                    new BufferedReader(new InputStreamReader(System.in));
-            //System.out.println("echo: " + in.readLine());
+        try {
+            socket = new Socket("127.0.0.1", 4444);
 
-            String userInput = loginTextField.getText();
-            out.println(userInput);
-            System.out.println("echo: " + in.readLine());
-            userInput = passwordField.getText();
-            out.println(userInput);
-            System.out.println("echo: " + in.readLine());
+            send = new DataOutputStream(socket.getOutputStream());
 
-
-        } catch (UnknownHostException e) {
+            receive = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        System.out.println("Połączono z serwerem!");
+
+        try {
+            send.writeUTF(loginTextField.getText());
         } catch (IOException e) {
             e.printStackTrace();
         }
