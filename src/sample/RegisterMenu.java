@@ -13,6 +13,11 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+
 public class RegisterMenu {
 
     private Stage mainStage;
@@ -23,8 +28,15 @@ public class RegisterMenu {
     private final TextField loginTextField = new TextField();
     private final PasswordField passwordField = new PasswordField();
 
-    public RegisterMenu(Stage primaryStage) {
+    private Socket socket;
+    private DataOutputStream send;
+    private DataInputStream receive;
+
+    public RegisterMenu(Stage primaryStage, Socket socket, DataOutputStream send, DataInputStream receive) {
         mainStage = primaryStage;
+        this.socket = socket;
+        this.send = send;
+        this.receive = receive;
 
         menuScene.getStylesheets().add(this.getClass().getResource("style.css").toExternalForm());
         loginPane.setBackground(Background.EMPTY);
@@ -81,12 +93,38 @@ public class RegisterMenu {
         });
 
         registerButton.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            if(registerUser()){
+
+            }
+
+            /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Register complete");
             alert.setHeaderText(null);
             alert.setContentText("Thanks for registration!");
-
-            alert.showAndWait();
+            alert.showAndWait();*/
         });
     }
+
+    private boolean registerUser() {
+        try {
+            send.writeUTF("register");
+            send.writeUTF(emailTextField.getText());
+            send.writeUTF(loginTextField.getText());
+            send.writeUTF(passwordField.getText());
+            String ret = receive.readUTF();
+            if(ret.contentEquals("0")){
+                System.out.println("Register failed!");
+                return false;
+            }
+            else if(ret.equals("1")){
+                System.out.println("Register successful1");
+                return true;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

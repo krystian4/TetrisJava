@@ -4,10 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -19,7 +16,6 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class LoginMenu extends Application {
 
@@ -73,6 +69,10 @@ public class LoginMenu extends Application {
 
         createSignUpButtons();
 
+        if(connectToServer() == false){
+            System.exit(0);
+        }
+
         mainStage.show();
     }
 
@@ -89,34 +89,57 @@ public class LoginMenu extends Application {
         loginPane.add(buttonHBox, 1, 4);
 
         loginButton.setOnAction(event -> {
-            if(!loginTextField.getText().isEmpty()){
-                new UserMenu(mainStage, loginTextField.getText().toString());
-                connectToServer();
+            if(!loginTextField.getText().isEmpty() && !passwordField.getText().isEmpty()){
+                if(loginByServer()){
+                    new UserMenu(mainStage, loginTextField.getText().toString());
+                }
             }
         });
 
         registerButton.setOnAction(event -> {
-            new RegisterMenu(mainStage);
+            new RegisterMenu(mainStage, socket, send, receive);
         });
     }
 
-    private void connectToServer() {
+    private boolean loginByServer() {
+        try {
+            send.writeUTF("login");
+            send.writeUTF(loginTextField.getText());
+            send.writeUTF(passwordField.getText());
+            String ret = receive.readUTF();
+            if(ret.contentEquals("0")){
+                System.out.println("Bad login or password!");
+                return false;
+            }
+            else if(ret.equals("1")){
+                System.out.println("Login successful1");
+                return true;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean connectToServer() {
         try {
             socket = new Socket("127.0.0.1", 4444);
 
             send = new DataOutputStream(socket.getOutputStream());
 
             receive = new DataInputStream(socket.getInputStream());
+            System.out.println("Połączono z serwerem!");
+
         } catch (IOException e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Connection Failed");
+            alert.setHeaderText(null);
+            alert.setContentText("Cannot connect to the server. Please, restart game.");
+            alert.showAndWait();
+            return false;
         }
-
-        System.out.println("Połączono z serwerem!");
-
-        try {
-            send.writeUTF(loginTextField.getText());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return true;
     }
 }
