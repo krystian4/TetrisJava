@@ -28,6 +28,8 @@ public class RegisterMenu {
     private final TextField loginTextField = new TextField();
     private final PasswordField passwordField = new PasswordField();
 
+    private Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
     private Socket socket;
     private DataOutputStream send;
     private DataInputStream receive;
@@ -94,14 +96,8 @@ public class RegisterMenu {
 
         registerButton.setOnAction(event -> {
             if(registerUser()){
-
+                mainStage.setScene(LoginMenu.menuScene);
             }
-
-            /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Register complete");
-            alert.setHeaderText(null);
-            alert.setContentText("Thanks for registration!");
-            alert.showAndWait();*/
         });
     }
 
@@ -114,13 +110,24 @@ public class RegisterMenu {
             String ret = receive.readUTF();
             if(ret.contentEquals("0")){
                 System.out.println("Register failed!");
+
+                ret = receive.readUTF();
+
+                alert.setTitle("Register failed");
+                alert.setHeaderText(null);
+                alert.setContentText(ret);
+                alert.showAndWait();
                 return false;
             }
             else if(ret.equals("1")){
                 System.out.println("Register successful1");
+
+                alert.setTitle("Register complete");
+                alert.setHeaderText(null);
+                alert.setContentText("Thanks for registration!");
+                alert.showAndWait();
                 return true;
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

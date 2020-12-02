@@ -21,6 +21,7 @@ public class Tetris{
     public static int WIDTH = BLOCKSIZE * 12;
     public static int HEIGHT = BLOCKSIZE * 24;
     public static int score = 0;
+    private int userHighScore = 0;
     //TEXTS
     private final Text scoreText = new Text("");
     private final Text level = new Text("");
@@ -48,6 +49,12 @@ public class Tetris{
 
     public Tetris(Stage primaryStage) {
         mainStage = primaryStage;
+        primaryStage.setOnCloseRequest(event -> {
+            if(score > userHighScore){
+                UserMenu.sendHighscoreToServer(score);
+            }
+            System.exit(0);
+        });
     }
 
     //zwracanie sceny i uruchamianie nowej
@@ -60,6 +67,7 @@ public class Tetris{
         } finally {
             mutex.release();
         }
+
 
         //TIMER
         threadPoolExecutor = Executors.newScheduledThreadPool(2);
@@ -84,6 +92,7 @@ public class Tetris{
                         displayGameOver(gameOver);
                         blockOnTop++;
                         System.out.println("Block on top: " + blockOnTop);
+                        scoreText.setText("SCORE: " + score);
                         displayRestartButton();
                         gameSpeed = 1000;
                         changeReadInterval(gameSpeed);
@@ -130,6 +139,9 @@ public class Tetris{
         restartButton.setLayoutY(310);
         group.getChildren().add(restartButton);
         restartButton.setOnAction(event -> {
+            if(score > userHighScore){
+                UserMenu.sendHighscoreToServer(score);
+            }
             group.getChildren().remove(restartButton);
             newGame();
         });
@@ -142,6 +154,9 @@ public class Tetris{
         menuButton.setLayoutY(HEIGHT - 100);
         group.getChildren().add(menuButton);
         menuButton.setOnAction(event -> {
+            if(score > Integer.parseInt(UserMenu.highscore.getText())){
+                UserMenu.sendHighscoreToServer(score);
+            }
             threadPoolExecutor.shutdown();
             gameRunning = false;
             if(gamePaused){
@@ -159,6 +174,12 @@ public class Tetris{
         System.out.println("New game started");
         checkpointScoreforTime = 100;
         blockOnTop=0;
+        userHighScore = Integer.parseInt(UserMenu.highscore.getText());
+
+        if(score > userHighScore){
+            UserMenu.sendHighscoreToServer(score);
+        }
+
         score = 0;
         numOfLines = 0;
         figure = null;

@@ -28,6 +28,7 @@ public class LoginMenu extends Application {
     public static Scene menuScene = new Scene(loginPane, 300, 300);
     private final TextField loginTextField = new TextField();
     private final PasswordField passwordField = new PasswordField();
+    private String highscore;
 
     public static void main() {
     }
@@ -91,7 +92,7 @@ public class LoginMenu extends Application {
         loginButton.setOnAction(event -> {
             if(!loginTextField.getText().isEmpty() && !passwordField.getText().isEmpty()){
                 if(loginByServer()){
-                    new UserMenu(mainStage, loginTextField.getText().toString());
+                    new UserMenu(mainStage, loginTextField.getText().toString(), send, receive, highscore);
                 }
             }
         });
@@ -113,9 +114,9 @@ public class LoginMenu extends Application {
             }
             else if(ret.equals("1")){
                 System.out.println("Login successful1");
+                highscore = receive.readUTF();//highscore
                 return true;
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

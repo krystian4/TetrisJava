@@ -11,13 +11,26 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+
 public class UserMenu{
     private Stage mainStage;
     private static final Pane menuPane = new Pane();
     public static Scene menuScene = new Scene(menuPane, 300, 600);
+    public static Text highscore = new Text("0");
+    //server
+    private static DataOutputStream send;
+    private DataInputStream receive;
 
-    public UserMenu(Stage primaryStage, String login){
-
+    public UserMenu(Stage primaryStage, String login, DataOutputStream send, DataInputStream receive, String highscore){
+        //Server
+        this.send = send;
+        this.receive = receive;
+        this.highscore = new Text(highscore);
         //menu scene
         mainStage = primaryStage;
         addStartButtonToPane();
@@ -33,9 +46,17 @@ public class UserMenu{
 
         Text loginText = new Text(login);
         loginText.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, 32));
-        loginText.setStyle("-fx-fill: white;");
+        loginText.setStyle("-fx-fill: orange;");
 
-        VBox vbox = new VBox(10, loginText);
+        Text hsText = new Text("HIGHSCORE:");
+        hsText.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, 38));
+        hsText.setStyle("-fx-fill: white;");
+
+
+        UserMenu.highscore.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, 30));
+        UserMenu.highscore.setStyle("-fx-fill: white;");
+
+        VBox vbox = new VBox(10, loginText, hsText, UserMenu.highscore);
         vbox.setMinWidth(300);
         vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(120, 0, 0 , 0));
@@ -43,6 +64,18 @@ public class UserMenu{
         sceneTitle.setY(100);
         menuPane.getChildren().addAll(sceneTitle, vbox);
         mainStage.show();
+    }
+
+    public static void sendHighscoreToServer(int score) {
+
+        try {
+            highscore.setText(Integer.toString(score));
+            send.writeUTF("updateHighScore");
+            send.writeUTF(highscore.getText());
+            send.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addControlsButtonToPane() {
@@ -68,7 +101,6 @@ public class UserMenu{
         backButton.setOnAction(event -> mainStage.setScene(menuScene));
         pane.getChildren().add(backButton);
     }
-
 
     private void addStartButtonToPane() {
         Button startButton = new Button("S T A R T");
