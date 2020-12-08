@@ -22,11 +22,13 @@ public class RegisterMenu {
 
     private Stage mainStage;
     private static final GridPane loginPane = new GridPane();
-    public static Scene menuScene = new Scene(loginPane, 300, 300);
+    public static Scene menuScene = new Scene(loginPane, 320, 300);
 
     private final TextField emailTextField = new TextField();
     private final TextField loginTextField = new TextField();
     private final PasswordField passwordField = new PasswordField();
+    private final PasswordField rpasswordField = new PasswordField();
+
 
     private Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
@@ -68,9 +70,14 @@ public class RegisterMenu {
         password.setTextFill(Color.WHITE);
         loginPane.add(password, 0, 3);
 
+        Label rpassword = new Label("Repeat password:");
+        rpassword.setTextFill(Color.WHITE);
+        loginPane.add(rpassword, 0, 4);
+
         loginPane.add(emailTextField, 1, 1);
         loginPane.add(loginTextField, 1, 2);
         loginPane.add(passwordField, 1, 3);
+        loginPane.add(rpasswordField, 1, 4);
 
         createSignUpButtons();
 
@@ -95,10 +102,35 @@ public class RegisterMenu {
         });
 
         registerButton.setOnAction(event -> {
-            if(registerUser()){
+            if(validation() && registerUser()){
                 mainStage.setScene(LoginMenu.menuScene);
             }
         });
+    }
+
+    private boolean validation() {
+        if(!passwordField.getText().equals(rpasswordField.getText())){
+            alert.setTitle("Register failed");
+            alert.setHeaderText(null);
+            alert.setContentText("Password not confirmed!");
+            alert.showAndWait();
+            return false;
+        }
+        else if(emailTextField.getText().isEmpty()){
+            alert.setTitle("Register failed");
+            alert.setHeaderText(null);
+            alert.setContentText("Email cannot be empty!");
+            alert.showAndWait();
+            return false;
+        }
+        else if(!emailTextField.getText().contains("@")){
+            alert.setTitle("Register failed");
+            alert.setHeaderText(null);
+            alert.setContentText("Email without @ symbol?");
+            alert.showAndWait();
+            return false;
+        }
+        return true;
     }
 
     private boolean registerUser() {

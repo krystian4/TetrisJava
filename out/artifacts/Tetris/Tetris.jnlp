@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="Tetris.jar" size="56333" download="eager" />
+    <jar href="Tetris.jar" size="59306" download="eager" />
   </resources>
   <jfx:javafx-desc  width="300" height="300" main-class="sample.LoginMenu"  name="Tetris" />
   <update check="background"/>

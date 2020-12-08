@@ -108,9 +108,22 @@ public class LoginMenu extends Application {
             send.writeUTF(loginTextField.getText());
             send.writeUTF(passwordField.getText());
             String ret = receive.readUTF();
-            if(ret.contentEquals("0")){
+            if(ret.contentEquals("-1")){
                 System.out.println("Bad login or password!");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("No account");
+                alert.setHeaderText(null);
+                alert.setContentText("Wrong username or password!");
+                alert.showAndWait();
                 return false;
+            }
+            else if(ret.equals("0")){
+                System.out.println("Already logged in!");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Already playing");
+                alert.setHeaderText(null);
+                alert.setContentText("Already logged in!");
+                alert.showAndWait();
             }
             else if(ret.equals("1")){
                 System.out.println("Login successful1");
