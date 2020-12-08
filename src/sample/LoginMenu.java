@@ -110,6 +110,11 @@ public class LoginMenu extends Application {
             String ret = receive.readUTF();
             if(ret.contentEquals("0")){
                 System.out.println("Bad login or password!");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("No account");
+                alert.setHeaderText(null);
+                alert.setContentText("Wrong username or password!");
+                alert.showAndWait();
                 return false;
             }
             else if(ret.equals("1")){
