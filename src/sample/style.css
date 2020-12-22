@@ -44,3 +44,6 @@
     -fx-font-size: 15px;
     -fx-padding: 5 10 5 10;
 }
+#ranking{
+    -fx-background-color: rgb(8, 15, 48);
+}
